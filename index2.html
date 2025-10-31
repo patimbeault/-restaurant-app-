@@ -1,0 +1,1332 @@
+import React, { useState } from 'react';
+import { ChevronRight, ChevronLeft, Folder, Plus, X, Check, Edit, Trash2, Calendar, Bell, AlertCircle, Save, CalendarDays, MoveHorizontal } from 'lucide-react';
+
+export default function RestaurantTracker() {
+  // Authentication states
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Users database
+  const users = [
+    { username: 'admin', password: 'admin123', name: 'Administrateur' },
+    { username: 'manager', password: 'manager123', name: 'Gestionnaire' },
+    { username: 'user', password: 'user123', name: 'Utilisateur' }
+  ];
+
+  const tryLogin = () => {
+    const user = users.find(u => u.username === username && u.password === password);
+    
+    if (user) {
+      setIsAuthenticated(true);
+      setCurrentUser(user);
+      setLoginError('');
+    } else {
+      setLoginError('Nom d\'utilisateur ou mot de passe incorrect');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setCurrentUser(null);
+    setUsername('');
+    setPassword('');
+  };
+
+  // If not authenticated, show login page
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-gray-100 flex items-center justify-center p-8">
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 max-w-md w-full">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Folder className="w-8 h-8 text-orange-600" />
+            </div>
+            <h1 className="text-3xl font-semibold text-gray-900 mb-2">Suivi des Restaurants</h1>
+            <p className="text-gray-600">Connectez-vous pour accéder à votre tableau de bord</p>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nom d'utilisateur
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setLoginError('');
+                }}
+                placeholder="Entrez votre nom d'utilisateur"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Mot de passe
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setLoginError('');
+                }}
+                placeholder="Entrez votre mot de passe"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+              />
+            </div>
+
+            {loginError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                <p className="text-sm text-red-700">{loginError}</p>
+              </div>
+            )}
+
+            <button
+              onClick={tryLogin}
+              className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-3 px-6 rounded-xl transition-all shadow-sm"
+            >
+              Se connecter
+            </button>
+          </div>
+
+          <div className="mt-6 p-4 bg-gray-50 rounded-xl">
+            <p className="text-xs text-gray-600 font-medium mb-2">Comptes de test:</p>
+            <div className="space-y-1 text-xs text-gray-500">
+              <p>• admin / admin123</p>
+              <p>• manager / manager123</p>
+              <p>• user / user123</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Main app component (only shown when authenticated)
+  return <AuthenticatedApp currentUser={currentUser} onLogout={handleLogout} />;
+}
+
+// Separate component for the authenticated app
+function AuthenticatedApp({ currentUser, onLogout }) {
+  const [restaurants, setRestaurants] = useState([
+    {
+      id: '034',
+      name: '034',
+      subfolders: [
+        { id: 'cuisine-034', name: 'Cuisine', tasks: [] },
+        { id: 'sam-034', name: 'SAM', tasks: [] }
+      ]
+    },
+    {
+      id: '035',
+      name: '035',
+      subfolders: [
+        { id: 'cuisine-035', name: 'Cuisine', tasks: [] },
+        { id: 'sam-035', name: 'SAM', tasks: [] }
+      ]
+    },
+    {
+      id: '053',
+      name: '053',
+      subfolders: [
+        { id: 'cuisine-053', name: 'Cuisine', tasks: [] },
+        { id: 'sam-053', name: 'SAM', tasks: [] }
+      ]
+    },
+    {
+      id: '234',
+      name: '234',
+      subfolders: [
+        { id: 'cuisine-234', name: 'Cuisine', tasks: [] },
+        { id: 'sam-234', name: 'SAM', tasks: [] }
+      ]
+    },
+    {
+      id: '240',
+      name: '240',
+      subfolders: [
+        { id: 'cuisine-240', name: 'Cuisine', tasks: [] },
+        { id: 'sam-240', name: 'SAM', tasks: [] }
+      ]
+    },
+    {
+      id: '241',
+      name: '241',
+      subfolders: [
+        { id: 'cuisine-241', name: 'Cuisine', tasks: [] },
+        { id: 'sam-241', name: 'SAM', tasks: [] }
+      ]
+    },
+    {
+      id: 'giorgio',
+      name: 'Giorgio',
+      subfolders: [
+        { id: 'cuisine-giorgio', name: 'Cuisine', tasks: [] },
+        { id: 'sam-giorgio', name: 'SAM', tasks: [] }
+      ]
+    }
+  ]);
+
+  const [currentView, setCurrentView] = useState('main');
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const [selectedSubfolder, setSelectedSubfolder] = useState(null);
+  const [newSubfolderName, setNewSubfolderName] = useState('');
+  const [newTaskName, setNewTaskName] = useState('');
+  const [newTaskDate, setNewTaskDate] = useState('');
+  const [showAddSubfolder, setShowAddSubfolder] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [taskFilter, setTaskFilter] = useState('all');
+  const [editingTask, setEditingTask] = useState(null);
+  const [editTaskName, setEditTaskName] = useState('');
+  const [editTaskDate, setEditTaskDate] = useState('');
+  const [showNotifications, setShowNotifications] = useState(false);
+  
+  // Calendar states
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [movingTask, setMovingTask] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [restaurantFilter, setRestaurantFilter] = useState('all');
+
+  const getOverdueTasks = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let overdueTasks = [];
+    
+    restaurants.forEach(resto => {
+      resto.subfolders.forEach(subfolder => {
+        subfolder.tasks.forEach(task => {
+          if (task.dueDate && !task.completed) {
+            const taskDate = new Date(task.dueDate);
+            taskDate.setHours(0, 0, 0, 0);
+            if (taskDate < today) {
+              overdueTasks.push({
+                ...task,
+                restaurant: resto.name,
+                subfolder: subfolder.name,
+                restaurantId: resto.id,
+                subfolderId: subfolder.id
+              });
+            }
+          }
+        });
+      });
+    });
+    
+    return overdueTasks;
+  };
+
+  const getAllTasks = () => {
+    let allTasks = [];
+    const filteredRestaurants = restaurantFilter === 'all' 
+      ? restaurants 
+      : restaurants.filter(r => r.id === restaurantFilter);
+    
+    filteredRestaurants.forEach(resto => {
+      resto.subfolders.forEach(subfolder => {
+        subfolder.tasks.forEach(task => {
+          if (task.dueDate) {
+            allTasks.push({
+              ...task,
+              restaurant: resto.name,
+              subfolder: subfolder.name,
+              restaurantId: resto.id,
+              subfolderId: subfolder.id
+            });
+          }
+        });
+      });
+    });
+    return allTasks;
+  };
+
+  const getTasksForDate = (date) => {
+    const dateString = formatDateForComparison(date);
+    return getAllTasks().filter(task => task.dueDate === dateString);
+  };
+
+  const formatDateForComparison = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const moveTaskToDate = (task, newDate) => {
+    const dateString = formatDateForComparison(newDate);
+    const updatedRestaurants = restaurants.map(resto => {
+      if (resto.id === task.restaurantId) {
+        return {
+          ...resto,
+          subfolders: resto.subfolders.map(sf => {
+            if (sf.id === task.subfolderId) {
+              return {
+                ...sf,
+                tasks: sf.tasks.map(t =>
+                  t.id === task.id ? { ...t, dueDate: dateString } : t
+                )
+              };
+            }
+            return sf;
+          })
+        };
+      }
+      return resto;
+    });
+    setRestaurants(updatedRestaurants);
+    setMovingTask(null);
+    setSelectedTask(null);
+  };
+
+  const getDaysInMonth = (month, year) => {
+    return new Date(year, month + 1, 0).getDate();
+  };
+
+  const getFirstDayOfMonth = (month, year) => {
+    return new Date(year, month, 1).getDay();
+  };
+
+  const monthNames = [
+    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+  ];
+
+  const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+
+  const previousMonth = () => {
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear(currentYear - 1);
+    } else {
+      setCurrentMonth(currentMonth - 1);
+    }
+  };
+
+  const nextMonth = () => {
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear(currentYear + 1);
+    } else {
+      setCurrentMonth(currentMonth + 1);
+    }
+  };
+
+  const goToToday = () => {
+    const today = new Date();
+    setCurrentMonth(today.getMonth());
+    setCurrentYear(today.getFullYear());
+  };
+
+  const renderCalendar = () => {
+    const daysInMonth = getDaysInMonth(currentMonth, currentYear);
+    const firstDay = getFirstDayOfMonth(currentMonth, currentYear);
+    const days = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (let i = 0; i < firstDay; i++) {
+      days.push(<div key={`empty-${i}`} className="min-h-24 bg-gray-50"></div>);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(currentYear, currentMonth, day);
+      const dateString = formatDateForComparison(date);
+      const tasksForDay = getTasksForDate(date);
+      const isToday = date.getTime() === today.getTime();
+      const isPast = date < today;
+
+      days.push(
+        <div
+          key={day}
+          onClick={() => {
+            if (movingTask) {
+              moveTaskToDate(movingTask, date);
+            } else {
+              setSelectedDate(date);
+            }
+          }}
+          className={`min-h-24 border border-gray-200 p-2 transition-all ${
+            movingTask ? 'cursor-pointer hover:bg-orange-50' : ''
+          } ${isToday ? 'bg-orange-50 border-orange-300' : 'bg-white'} ${
+            isPast && !isToday ? 'bg-gray-50' : ''
+          }`}
+        >
+          <div className={`text-sm font-medium mb-1 ${
+            isToday ? 'text-orange-600' : isPast ? 'text-gray-400' : 'text-gray-700'
+          }`}>
+            {day}
+            {isToday && <span className="ml-1 text-xs">(Aujourd'hui)</span>}
+          </div>
+          <div className="space-y-1">
+            {tasksForDay.slice(0, 3).map((task) => {
+              const isOverdue = isPast && !task.completed;
+              return (
+                <button
+                  key={task.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedTask(task);
+                  }}
+                  className={`w-full text-left px-2 py-1 rounded text-xs truncate transition-all ${
+                    task.completed
+                      ? 'bg-green-100 text-green-700 line-through hover:bg-green-200'
+                      : isOverdue
+                      ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                      : 'bg-gray-900 text-white hover:bg-gray-800'
+                  }`}
+                >
+                  {task.name}
+                </button>
+              );
+            })}
+            {tasksForDay.length > 3 && (
+              <div className="text-xs text-gray-500 pl-2">
+                +{tasksForDay.length - 3} autre{tasksForDay.length - 3 > 1 ? 's' : ''}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    return days;
+  };
+
+  const openRestaurant = (restaurant) => {
+    setSelectedRestaurant(restaurant);
+    setCurrentView('restaurant');
+  };
+
+  const openSubfolder = (subfolder) => {
+    setSelectedSubfolder(subfolder);
+    setCurrentView('subfolder');
+  };
+
+  const goBack = () => {
+    if (currentView === 'subfolder') {
+      setCurrentView('restaurant');
+      setSelectedSubfolder(null);
+      setEditingTask(null);
+    } else if (currentView === 'restaurant') {
+      setCurrentView('main');
+      setSelectedRestaurant(null);
+      setShowAddSubfolder(false);
+      setEditMode(false);
+    } else if (currentView === 'notifications' || currentView === 'calendar') {
+      setCurrentView('main');
+      setShowNotifications(false);
+      setSelectedTask(null);
+      setMovingTask(null);
+      setSelectedDate(null);
+      setRestaurantFilter('all');
+    }
+  };
+
+  const addSubfolder = () => {
+    if (newSubfolderName.trim() && selectedRestaurant) {
+      const updatedRestaurants = restaurants.map(resto => {
+        if (resto.id === selectedRestaurant.id) {
+          return {
+            ...resto,
+            subfolders: [
+              ...resto.subfolders,
+              {
+                id: `${newSubfolderName.toLowerCase()}-${resto.id}-${Date.now()}`,
+                name: newSubfolderName.trim(),
+                tasks: []
+              }
+            ]
+          };
+        }
+        return resto;
+      });
+      setRestaurants(updatedRestaurants);
+      setSelectedRestaurant(updatedRestaurants.find(r => r.id === selectedRestaurant.id));
+      setNewSubfolderName('');
+      setShowAddSubfolder(false);
+    }
+  };
+
+  const removeSubfolder = (subfolderId) => {
+    const updatedRestaurants = restaurants.map(resto => {
+      if (resto.id === selectedRestaurant.id) {
+        return {
+          ...resto,
+          subfolders: resto.subfolders.filter(sf => sf.id !== subfolderId)
+        };
+      }
+      return resto;
+    });
+    setRestaurants(updatedRestaurants);
+    setSelectedRestaurant(updatedRestaurants.find(r => r.id === selectedRestaurant.id));
+  };
+
+  const addTask = () => {
+    if (newTaskName.trim() && selectedSubfolder && selectedRestaurant) {
+      const updatedRestaurants = restaurants.map(resto => {
+        if (resto.id === selectedRestaurant.id) {
+          return {
+            ...resto,
+            subfolders: resto.subfolders.map(sf => {
+              if (sf.id === selectedSubfolder.id) {
+                return {
+                  ...sf,
+                  tasks: [
+                    ...sf.tasks,
+                    {
+                      id: Date.now(),
+                      name: newTaskName.trim(),
+                      completed: false,
+                      dueDate: newTaskDate || null,
+                      createdAt: new Date().toISOString()
+                    }
+                  ]
+                };
+              }
+              return sf;
+            })
+          };
+        }
+        return resto;
+      });
+      setRestaurants(updatedRestaurants);
+      const updatedResto = updatedRestaurants.find(r => r.id === selectedRestaurant.id);
+      setSelectedRestaurant(updatedResto);
+      setSelectedSubfolder(updatedResto.subfolders.find(sf => sf.id === selectedSubfolder.id));
+      setNewTaskName('');
+      setNewTaskDate('');
+    }
+  };
+
+  const toggleTask = (taskId) => {
+    const updatedRestaurants = restaurants.map(resto => {
+      if (resto.id === selectedRestaurant.id) {
+        return {
+          ...resto,
+          subfolders: resto.subfolders.map(sf => {
+            if (sf.id === selectedSubfolder.id) {
+              return {
+                ...sf,
+                tasks: sf.tasks.map(task =>
+                  task.id === taskId ? { ...task, completed: !task.completed } : task
+                )
+              };
+            }
+            return sf;
+          })
+        };
+      }
+      return resto;
+    });
+    setRestaurants(updatedRestaurants);
+    const updatedResto = updatedRestaurants.find(r => r.id === selectedRestaurant.id);
+    setSelectedRestaurant(updatedResto);
+    setSelectedSubfolder(updatedResto.subfolders.find(sf => sf.id === selectedSubfolder.id));
+  };
+
+  const toggleTaskInCalendar = (task) => {
+    const updatedRestaurants = restaurants.map(resto => {
+      if (resto.id === task.restaurantId) {
+        return {
+          ...resto,
+          subfolders: resto.subfolders.map(sf => {
+            if (sf.id === task.subfolderId) {
+              return {
+                ...sf,
+                tasks: sf.tasks.map(t =>
+                  t.id === task.id ? { ...t, completed: !t.completed } : t
+                )
+              };
+            }
+            return sf;
+          })
+        };
+      }
+      return resto;
+    });
+    setRestaurants(updatedRestaurants);
+    setSelectedTask(null);
+  };
+
+  const removeTask = (taskId) => {
+    const updatedRestaurants = restaurants.map(resto => {
+      if (resto.id === selectedRestaurant.id) {
+        return {
+          ...resto,
+          subfolders: resto.subfolders.map(sf => {
+            if (sf.id === selectedSubfolder.id) {
+              return {
+                ...sf,
+                tasks: sf.tasks.filter(task => task.id !== taskId)
+              };
+            }
+            return sf;
+          })
+        };
+      }
+      return resto;
+    });
+    setRestaurants(updatedRestaurants);
+    const updatedResto = updatedRestaurants.find(r => r.id === selectedRestaurant.id);
+    setSelectedRestaurant(updatedResto);
+    setSelectedSubfolder(updatedResto.subfolders.find(sf => sf.id === selectedSubfolder.id));
+    setEditingTask(null);
+  };
+
+  const removeTaskFromCalendar = (task) => {
+    const updatedRestaurants = restaurants.map(resto => {
+      if (resto.id === task.restaurantId) {
+        return {
+          ...resto,
+          subfolders: resto.subfolders.map(sf => {
+            if (sf.id === task.subfolderId) {
+              return {
+                ...sf,
+                tasks: sf.tasks.filter(t => t.id !== task.id)
+              };
+            }
+            return sf;
+          })
+        };
+      }
+      return resto;
+    });
+    setRestaurants(updatedRestaurants);
+    setSelectedTask(null);
+  };
+
+  const startEditTask = (task) => {
+    setEditingTask(task.id);
+    setEditTaskName(task.name);
+    setEditTaskDate(task.dueDate || '');
+  };
+
+  const saveEditTask = (taskId) => {
+    const updatedRestaurants = restaurants.map(resto => {
+      if (resto.id === selectedRestaurant.id) {
+        return {
+          ...resto,
+          subfolders: resto.subfolders.map(sf => {
+            if (sf.id === selectedSubfolder.id) {
+              return {
+                ...sf,
+                tasks: sf.tasks.map(task =>
+                  task.id === taskId ? { ...task, name: editTaskName, dueDate: editTaskDate || null } : task
+                )
+              };
+            }
+            return sf;
+          })
+        };
+      }
+      return resto;
+    });
+    setRestaurants(updatedRestaurants);
+    const updatedResto = updatedRestaurants.find(r => r.id === selectedRestaurant.id);
+    setSelectedRestaurant(updatedResto);
+    setSelectedSubfolder(updatedResto.subfolders.find(sf => sf.id === selectedSubfolder.id));
+    setEditingTask(null);
+  };
+
+  const isTaskOverdue = (task) => {
+    if (!task.dueDate || task.completed) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const taskDate = new Date(task.dueDate);
+    taskDate.setHours(0, 0, 0, 0);
+    return taskDate < today;
+  };
+
+  const calculateProgress = (subfolder) => {
+    if (!subfolder.tasks.length) return 0;
+    const completed = subfolder.tasks.filter(t => t.completed).length;
+    return (completed / subfolder.tasks.length) * 100;
+  };
+
+  const calculateRestaurantProgress = (restaurant) => {
+    const allTasks = restaurant.subfolders.flatMap(sf => sf.tasks);
+    if (!allTasks.length) return 0;
+    const completed = allTasks.filter(t => t.completed).length;
+    return (completed / allTasks.length) * 100;
+  };
+
+  const getFilteredTasks = () => {
+    if (!selectedSubfolder) return [];
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return selectedSubfolder.tasks.filter(task => {
+      if (taskFilter === 'completed') return task.completed;
+      if (taskFilter === 'todo') return !task.completed;
+      if (taskFilter === 'overdue') {
+        if (!task.dueDate || task.completed) return false;
+        const taskDate = new Date(task.dueDate);
+        taskDate.setHours(0, 0, 0, 0);
+        return taskDate < today;
+      }
+      return true;
+    });
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  };
+
+  const overdueTasks = getOverdueTasks();
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex-1"></div>
+            <div className="flex-1 text-center">
+              <h1 className="text-3xl font-semibold text-gray-900 mb-2">Suivi des Restaurants</h1>
+              <p className="text-gray-600">Gestion et progression des tâches</p>
+            </div>
+            <div className="flex-1 flex justify-end">
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900">{currentUser?.name}</p>
+                  <p className="text-xs text-gray-500">@{currentUser?.username}</p>
+                </div>
+                <button
+                  onClick={onLogout}
+                  className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl font-medium transition-colors text-sm flex items-center gap-2"
+                >
+                  <X className="w-4 h-4" />
+                  Déconnexion
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Navigation Buttons */}
+        {currentView === 'main' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <button
+              onClick={() => setCurrentView('calendar')}
+              className="p-6 bg-white rounded-3xl shadow-sm border border-gray-200 hover:shadow-md transition-all group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                  <CalendarDays className="w-6 h-6 text-orange-600" />
+                </div>
+                <div className="text-left flex-1">
+                  <h3 className="text-lg font-medium text-gray-900">Planification Calendrier</h3>
+                  <p className="text-sm text-gray-500">Visualiser et organiser vos tâches</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+              </div>
+            </button>
+
+            {overdueTasks.length > 0 && (
+              <button
+                onClick={() => {
+                  setCurrentView('notifications');
+                  setShowNotifications(true);
+                }}
+                className="p-6 bg-red-50 border border-red-200 rounded-3xl hover:bg-red-100 transition-all group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <Bell className="w-6 h-6 text-red-600" />
+                  </div>
+                  <div className="text-left flex-1">
+                    <h3 className="text-lg font-medium text-red-900">Tâches en retard</h3>
+                    <p className="text-sm text-red-600">{overdueTasks.length} tâche{overdueTasks.length !== 1 ? 's' : ''}</p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-red-600" />
+                </div>
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Main Card */}
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 mb-6 overflow-hidden">
+          {/* CALENDAR VIEW */}
+          {currentView === 'calendar' && (
+            <div className="p-6">
+              <button
+                onClick={goBack}
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Retour
+              </button>
+
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-2xl font-semibold text-gray-900">
+                    {monthNames[currentMonth]} {currentYear}
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={goToToday}
+                      className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Aujourd'hui
+                    </button>
+                    <button
+                      onClick={previousMonth}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <ChevronLeft className="w-5 h-5 text-gray-600" />
+                    </button>
+                    <button
+                      onClick={nextMonth}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <ChevronRight className="w-5 h-5 text-gray-600" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Restaurant Filter */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Filtrer par restaurant
+                  </label>
+                  <select
+                    value={restaurantFilter}
+                    onChange={(e) => setRestaurantFilter(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent text-sm bg-white"
+                  >
+                    <option value="all">Tous les restaurants</option>
+                    {restaurants.map((resto) => (
+                      <option key={resto.id} value={resto.id}>
+                        {resto.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {movingTask && (
+                  <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <MoveHorizontal className="w-5 h-5 text-orange-600" />
+                      <div>
+                        <div className="font-medium text-orange-900">
+                          Déplacement de: {movingTask.name}
+                        </div>
+                        <div className="text-sm text-orange-700">
+                          Cliquez sur une date pour déplacer la tâche
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setMovingTask(null);
+                        setSelectedTask(null);
+                      }}
+                      className="p-1 hover:bg-orange-200 rounded-lg transition-colors"
+                    >
+                      <X className="w-5 h-5 text-orange-600" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-7 gap-0 border border-gray-200 rounded-lg overflow-hidden">
+                {/* Day headers */}
+                {dayNames.map((day) => (
+                  <div
+                    key={day}
+                    className="bg-gray-100 p-3 text-center text-sm font-semibold text-gray-700 border-b border-gray-200"
+                  >
+                    {day}
+                  </div>
+                ))}
+                {/* Calendar days */}
+                {renderCalendar()}
+              </div>
+
+              {/* Legend */}
+              <div className="mt-6 flex items-center gap-6 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-gray-900 rounded"></div>
+                  <span className="text-gray-600">Tâche à faire</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-green-100 rounded"></div>
+                  <span className="text-gray-600">Tâche complétée</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-red-100 rounded"></div>
+                  <span className="text-gray-600">En retard</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* NOTIFICATIONS VIEW */}
+          {currentView === 'notifications' && (
+            <div className="p-6">
+              <button
+                onClick={goBack}
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Retour
+              </button>
+              
+              <div className="mb-6">
+                <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-red-500" />
+                  Tâches en retard
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">{overdueTasks.length} tâche{overdueTasks.length !== 1 ? 's' : ''} à traiter</p>
+              </div>
+
+              <div className="space-y-3">
+                {overdueTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className="p-4 bg-red-50 border border-red-200 rounded-xl"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-900">{task.name}</div>
+                        <div className="text-sm text-gray-600 mt-1">
+                          {task.restaurant} - {task.subfolder}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-red-600">
+                      <Calendar className="w-4 h-4" />
+                      Échéance: {formatDate(task.dueDate)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* MAIN VIEW - Liste des restaurants */}
+          {currentView === 'main' && (
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">Mes Restaurants</h3>
+                <span className="text-sm text-gray-500">{restaurants.length}</span>
+              </div>
+              
+              <div className="space-y-2">
+                {restaurants.map((restaurant) => {
+                  const progress = calculateRestaurantProgress(restaurant);
+                  const totalTasks = restaurant.subfolders.flatMap(sf => sf.tasks).length;
+                  const completedTasks = restaurant.subfolders.flatMap(sf => sf.tasks).filter(t => t.completed).length;
+                  
+                  return (
+                    <button
+                      key={restaurant.id}
+                      onClick={() => openRestaurant(restaurant)}
+                      className="w-full flex items-center justify-between p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all group"
+                    >
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                          <Folder className="w-5 h-5 text-orange-600" />
+                        </div>
+                        <div className="text-left flex-1">
+                          <div className="font-medium text-gray-900">{restaurant.name}</div>
+                          <div className="text-xs text-gray-500">
+                            {totalTasks > 0 ? `${completedTasks}/${totalTasks} tâches` : 'Aucune tâche'}
+                          </div>
+                          {totalTasks > 0 && (
+                            <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
+                              <div 
+                                className="bg-orange-500 h-1.5 rounded-full transition-all duration-300"
+                                style={{ width: `${progress}%` }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* RESTAURANT VIEW */}
+          {currentView === 'restaurant' && selectedRestaurant && (
+            <div className="p-6">
+              <button
+                onClick={goBack}
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Retour
+              </button>
+              
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900">{selectedRestaurant.name}</h3>
+                  <p className="text-sm text-gray-500">{selectedRestaurant.subfolders.length} départements</p>
+                </div>
+                <button
+                  onClick={() => setEditMode(!editMode)}
+                  className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  <Edit className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
+
+              {editMode && (
+                <div className="mb-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newSubfolderName}
+                      onChange={(e) => setNewSubfolderName(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addSubfolder()}
+                      placeholder="Nom du département"
+                      className="flex-1 px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent text-sm"
+                    />
+                    <button
+                      onClick={addSubfolder}
+                      disabled={!newSubfolderName.trim()}
+                      className="px-4 py-2 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 text-white rounded-xl font-medium transition-all flex items-center gap-2 text-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Ajouter
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              <div className="space-y-2">
+                {selectedRestaurant.subfolders.map((subfolder) => {
+                  const progress = calculateProgress(subfolder);
+                  
+                  return (
+                    <div
+                      key={subfolder.id}
+                      className="flex items-center justify-between p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all group"
+                    >
+                      <button
+                        onClick={() => openSubfolder(subfolder)}
+                        className="flex items-center gap-3 flex-1 text-left"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center">
+                          <Folder className="w-5 h-5 text-orange-500" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900">{subfolder.name}</div>
+                          <div className="text-xs text-gray-500">
+                            {subfolder.tasks.length} tâche{subfolder.tasks.length !== 1 ? 's' : ''}
+                          </div>
+                          {subfolder.tasks.length > 0 && (
+                            <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
+                              <div 
+                                className="bg-orange-500 h-1.5 rounded-full transition-all duration-300"
+                                style={{ width: `${progress}%` }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+                      </button>
+                      {editMode && !['Cuisine', 'SAM'].includes(subfolder.name) && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeSubfolder(subfolder.id);
+                          }}
+                          className="ml-2 p-1 hover:bg-red-100 rounded-md transition-colors"
+                        >
+                          <X className="w-4 h-4 text-red-500" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* SUBFOLDER VIEW */}
+          {currentView === 'subfolder' && selectedSubfolder && (
+            <div className="p-6">
+              <button
+                onClick={goBack}
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Retour
+              </button>
+              
+              <div className="mb-6">
+                <h3 className="text-lg font-medium text-gray-900">{selectedSubfolder.name}</h3>
+                <p className="text-sm text-gray-500">{selectedRestaurant.name}</p>
+                
+                {selectedSubfolder.tasks.length > 0 && (
+                  <div className="mt-4">
+                    <div className="flex justify-between text-sm text-gray-600 mb-2">
+                      <span>Progression</span>
+                      <span>{selectedSubfolder.tasks.filter(t => t.completed).length}/{selectedSubfolder.tasks.length}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-orange-500 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${calculateProgress(selectedSubfolder)}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Filtres */}
+              <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+                <button
+                  onClick={() => setTaskFilter('all')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                    taskFilter === 'all' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Toutes ({selectedSubfolder.tasks.length})
+                </button>
+                <button
+                  onClick={() => setTaskFilter('todo')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                    taskFilter === 'todo' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  À faire ({selectedSubfolder.tasks.filter(t => !t.completed).length})
+                </button>
+                <button
+                  onClick={() => setTaskFilter('completed')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                    taskFilter === 'completed' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Complétées ({selectedSubfolder.tasks.filter(t => t.completed).length})
+                </button>
+                <button
+                  onClick={() => setTaskFilter('overdue')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                    taskFilter === 'overdue' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  En retard ({selectedSubfolder.tasks.filter(t => isTaskOverdue(t)).length})
+                </button>
+              </div>
+
+              <div className="mb-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={newTaskName}
+                    onChange={(e) => setNewTaskName(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && addTask()}
+                    placeholder="Nouvelle tâche"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent text-sm"
+                  />
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="date"
+                        value={newTaskDate}
+                        onChange={(e) => setNewTaskDate(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent text-sm"
+                      />
+                    </div>
+                    <button
+                      onClick={addTask}
+                      disabled={!newTaskName.trim()}
+                      className="px-4 py-2 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 text-white rounded-xl font-medium transition-all flex items-center gap-2 text-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Ajouter
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {getFilteredTasks().length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>Aucune tâche</p>
+                    <p className="text-sm mt-1">
+                      {taskFilter === 'all' ? 'Ajoutez votre première tâche ci-dessus' : 'Aucune tâche dans cette catégorie'}
+                    </p>
+                  </div>
+                ) : (
+                  getFilteredTasks().map((task) => (
+                    <div
+                      key={task.id}
+                      className={`p-3 rounded-xl transition-all ${
+                        isTaskOverdue(task) ? 'bg-red-50 border border-red-200' :
+                        task.completed ? 'bg-gray-50' : 'bg-orange-50'
+                      }`}
+                    >
+                      {editingTask === task.id ? (
+                        <div className="space-y-3">
+                          <input
+                            type="text"
+                            value={editTaskName}
+                            onChange={(e) => setEditTaskName(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm"
+                          />
+                          <div className="relative">
+                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input
+                              type="date"
+                              value={editTaskDate}
+                              onChange={(e) => setEditTaskDate(e.target.value)}
+                              className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm"
+                            />
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => saveEditTask(task.id)}
+                              className="flex-1 px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm"
+                            >
+                              <Save className="w-4 h-4" />
+                              Sauvegarder
+                            </button>
+                            <button
+                              onClick={() => setEditingTask(null)}
+                              className="px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors text-sm"
+                            >
+                              Annuler
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-start gap-3 flex-1">
+                              <button
+                                onClick={() => toggleTask(task.id)}
+                                className={`mt-0.5 w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                                  task.completed
+                                    ? 'bg-orange-500 border-orange-500'
+                                    : 'border-gray-300 hover:border-orange-400'
+                                }`}
+                              >
+                                {task.completed && <Check className="w-4 h-4 text-white" />}
+                              </button>
+                              <div className="flex-1">
+                                <span className={`block ${task.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                                  {task.name}
+                                </span>
+                                {task.dueDate && (
+                                  <div className={`flex items-center gap-1 mt-1 text-xs ${
+                                    isTaskOverdue(task) ? 'text-red-600 font-medium' : 'text-gray-500'
+                                  }`}>
+                                    <Calendar className="w-3 h-3" />
+                                    {formatDate(task.dueDate)}
+                                    {isTaskOverdue(task) && (
+                                      <span className="ml-1 px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-medium">
+                                        En retard
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex gap-1 ml-2">
+                              <button
+                                onClick={() => startEditTask(task)}
+                                className="p-1.5 hover:bg-orange-100 rounded-md transition-colors"
+                              >
+                                <Edit className="w-4 h-4 text-orange-600" />
+                              </button>
+                              <button
+                                onClick={() => removeTask(task.id)}
+                                className="p-1.5 hover:bg-red-100 rounded-md transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Task Details Modal */}
+      {selectedTask && !movingTask && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedTask(null)}>
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">{selectedTask.name}</h3>
+                <p className="text-sm text-gray-600">{selectedTask.restaurant} - {selectedTask.subfolder}</p>
+              </div>
+              <button
+                onClick={() => setSelectedTask(null)}
+                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            {selectedTask.dueDate && (
+              <div className={`flex items-center gap-2 mb-4 text-sm ${
+                isTaskOverdue(selectedTask) ? 'text-red-600' : 'text-gray-600'
+              }`}>
+                <Calendar className="w-4 h-4" />
+                {formatDate(selectedTask.dueDate)}
+                {isTaskOverdue(selectedTask) && (
+                  <span className="ml-1 px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-medium">
+                    En retard
+                  </span>
+                )}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <button
+                onClick={() => setMovingTask(selectedTask)}
+                className="w-full px-4 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+              >
+                <MoveHorizontal className="w-4 h-4" />
+                Déplacer vers une autre date
+              </button>
+              
+              <button
+                onClick={() => toggleTaskInCalendar(selectedTask)}
+                className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+              >
+                <Check className="w-4 h-4" />
+                {selectedTask.completed ? 'Marquer comme non complétée' : 'Marquer comme complétée'}
+              </button>
+              
+              <button
+                onClick={() => removeTaskFromCalendar(selectedTask)}
+                className="w-full px-4 py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                Supprimer la tâche
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
